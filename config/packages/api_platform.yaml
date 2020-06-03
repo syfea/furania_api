@@ -5,3 +5,10 @@ api_platform:
         json: ['application/merge-patch+json']
     swagger:
         versions: [3]
+    title: 'Furania API'
+    description: 'Api for picture storage'
+    collection:
+        pagination:
+            enabled: false
+            client_enabled: true
+            client_items_per_page: true

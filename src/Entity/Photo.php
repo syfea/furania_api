@@ -10,7 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=PhotoRepository::class)
- * @ApiResource()
+ * @ApiResource(
+ *     attributes={
+            "order": {"createdAt": "desc"}
+ *     }
+ * )
  */
 class Photo
 {

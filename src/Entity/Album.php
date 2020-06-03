@@ -2,7 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\AlbumRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,7 +12,12 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=AlbumRepository::class)
- * @ApiResource()
+ * @ApiResource(
+ *     attributes={
+            "order": {"createdAt": "desc"}
+ *     }
+ * )
+ * @ApiFilter(SearchFilter::class, properties={"name":"partial "})
  */
 class Album
 {
