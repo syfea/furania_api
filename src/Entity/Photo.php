@@ -7,12 +7,18 @@ use App\Repository\PhotoRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @ORM\Entity(repositoryClass=PhotoRepository::class)
  * @ApiResource(
  *     attributes={
             "order": {"createdAt": "desc"}
+ *     },
+ *     normalizationContext={
+            "groups"={"photos_read"}
  *     }
  * )
  */
@@ -27,22 +33,26 @@ class Photo
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"photos_read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"photos_read"})
      */
     private $content;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"photos_read"})
      */
     private $createdAt;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="photos")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"photos_read"})
      */
     private $user;
 
@@ -50,6 +60,12 @@ class Photo
      * @ORM\ManyToMany(targetEntity=Album::class, mappedBy="Photo")
      */
     private $albums;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Groups({"photos_read"})
+     */
+    private $size;
 
     public function __construct()
     {
@@ -133,6 +149,18 @@ class Photo
             $this->albums->removeElement($album);
             $album->removePhoto($this);
         }
+
+        return $this;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    public function setSize(int $size): self
+    {
+        $this->size = $size;
 
         return $this;
     }

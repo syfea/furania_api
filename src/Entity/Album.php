@@ -5,19 +5,27 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use App\Repository\AlbumRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @ORM\Entity(repositoryClass=AlbumRepository::class)
  * @ApiResource(
  *     attributes={
             "order": {"createdAt": "desc"}
+ *     },
+ *     normalizationContext={
+            "groups"={"album_read"}
  *     }
  * )
- * @ApiFilter(SearchFilter::class, properties={"name":"partial "})
+ * @ApiFilter(SearchFilter::class, properties={"name":"partial"})
+ * @ApiFilter(OrderFilter::class, properties={"createdAt"})
  */
 class Album
 {
@@ -30,22 +38,28 @@ class Album
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"album_read"})
+     * @Assert\NotBlank(message="The name is mandatory.")
      */
     private $name;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"album_read"})
+     * @Assert\NotBlank(message="The created date is mandatory.")
      */
     private $createdAt;
 
     /**
      * @ORM\ManyToMany(targetEntity=Photo::class, inversedBy="albums")
+     * @Groups({"album_read"})
      */
-    private $Photo;
+    private $photo;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="albums")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotBlank(message="The user is mandatory.")
      */
     private $user;
 
@@ -88,13 +102,13 @@ class Album
      */
     public function getPhoto(): Collection
     {
-        return $this->Photo;
+        return $this->photo;
     }
 
     public function addPhoto(Photo $photo): self
     {
-        if (!$this->Photo->contains($photo)) {
-            $this->Photo[] = $photo;
+        if (!$this->photo->contains($photo)) {
+            $this->photo[] = $photo;
         }
 
         return $this;
@@ -102,8 +116,8 @@ class Album
 
     public function removePhoto(Photo $photo): self
     {
-        if ($this->Photo->contains($photo)) {
-            $this->Photo->removeElement($photo);
+        if ($this->photo->contains($photo)) {
+            $this->photo->removeElement($photo);
         }
 
         return $this;

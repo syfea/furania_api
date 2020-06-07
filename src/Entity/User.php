@@ -7,15 +7,24 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ApiResource(
  *     attributes={
             "pagination_enabled"=true,
- *     }
+ *     },
+ *     normalizationContext={
+            "groups"={"users_read"}
+ *     },
+ *     itemOperations={"GET", "PATCH"}
  * )
+ * @UniqueEntity("email", message="An user has already this address mail.")
  */
 class User implements UserInterface
 {
@@ -23,11 +32,15 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"users_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Groups({"users_read"})
+     * @Assert\NotBlank(message="The email is mandatory.")
+     * @Assert\Email(message="the value must be an address email valid.")
      */
     private $email;
 
@@ -39,21 +52,27 @@ class User implements UserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Assert\NotBlank(message="The password is mandatory.")
+     * @Assert\Length(min="6", minMessage="The password must have 6 caracters minimum.")
      */
     private $password;
 
     /**
      * @ORM\OneToMany(targetEntity=Photo::class, mappedBy="user")
+     * @Groups({"users_read"})
      */
     private $photos;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"users_read"})
+     * @Assert\NotBlank(message="The username is mandatory.")
      */
     private $username;
 
     /**
      * @ORM\OneToMany(targetEntity=Album::class, mappedBy="user")
+     * @Groups({"users_read"})
      */
     private $albums;
 
@@ -61,6 +80,26 @@ class User implements UserInterface
     {
         $this->photos = new ArrayCollection();
         $this->albums = new ArrayCollection();
+    }
+
+    /**
+     * @Groups({"users_read"})
+     * @return int
+     */
+    public function getNbPhotos(): ?int
+    {
+        return count($this->photos);
+    }
+
+    /**
+     * @Groups({"users_read"})
+     * @return int
+     */
+    public function getSizePhotos(): ?int
+    {
+        return array_reduce($this->photos->toArray(), function ($total, $photo) {
+            return $total + $photo->getSize();
+        }, 0);
     }
 
     public function getId(): ?int
