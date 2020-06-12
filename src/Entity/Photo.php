@@ -57,7 +57,7 @@ class Photo
     private $user;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Album::class, mappedBy="Photo")
+     * @ORM\ManyToMany(targetEntity=Album::class, mappedBy="photo")
      */
     private $albums;
 

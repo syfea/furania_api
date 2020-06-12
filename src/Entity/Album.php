@@ -65,7 +65,7 @@ class Album
 
     public function __construct()
     {
-        $this->Photo = new ArrayCollection();
+        $this->photo = new ArrayCollection();
     }
 
     public function getId(): ?int
