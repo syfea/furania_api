@@ -35,6 +35,7 @@ class AppFixtures extends Fixture
 
             $user->setEmail($faker->email())
                 ->setUsername($faker->userName)
+                ->setCreatedAt(new \DateTime())
                 ->setPassword($hash);
             $manager->persist($user);
 
@@ -42,6 +43,7 @@ class AppFixtures extends Fixture
                 $photo = new Photo();
                 $photo->setContent(base64_encode($faker->imageUrl(640, 480)))
                     ->setName($faker->name)
+                    ->setSize($faker->randomDigit)
                     ->setCreatedAt($faker->dateTimeBetween('-6 months'))
                     ->setUser($user);
                 $manager->persist($photo);
